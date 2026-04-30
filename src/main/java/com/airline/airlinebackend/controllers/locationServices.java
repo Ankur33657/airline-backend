@@ -64,5 +64,5 @@ public class locationServices {
         return new ResponseEntity<>(resp,HttpStatus.OK);
 
     }
-    // add develop
+
 }
