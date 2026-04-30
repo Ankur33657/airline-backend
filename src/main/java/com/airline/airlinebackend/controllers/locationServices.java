@@ -1,6 +1,7 @@
 package com.airline.airlinebackend.controllers;
 
 
+import com.airline.airlinebackend.common.error.types.NotFound;
 import com.airline.airlinebackend.common.request.CityRequest;
 import com.airline.airlinebackend.common.response.CityResponse;
 import com.airline.airlinebackend.common.response.apiResponse;
@@ -34,7 +35,7 @@ public class locationServices {
 
     }
 
-    @GetMapping("/getcitybyid")
+    @GetMapping("/citybyid")
     public ResponseEntity<apiResponse> getCityById(@RequestParam("id") Long id) throws Exception{
      CityResponse city=cityService.getCityById(id);
      apiResponse resp=new apiResponse(HttpStatus.OK,"City Found",city);
@@ -55,8 +56,8 @@ public class locationServices {
         return new ResponseEntity<>(resp,HttpStatus.OK);
     }
 
-    @GetMapping("/getallcities")
-    public ResponseEntity<apiResponse> getALlCities(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "20") int size,
+    @GetMapping("/allcities")
+    public ResponseEntity<apiResponse> getAllCities(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "20") int size,
     @RequestParam(defaultValue = "name") String sortBy,@RequestParam(defaultValue = "asc") String sortDirection){
         Sort sort=Sort.by(Sort.Direction.fromString(sortDirection),sortBy);
         Pageable pageable= PageRequest.of(page,size,sort);
@@ -65,4 +66,26 @@ public class locationServices {
 
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<apiResponse> searchCities(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "20") int size,@RequestParam String keyword ) throws Exception{
+       Pageable pageable=PageRequest.of(page,size);
+       apiResponse resp=new apiResponse(HttpStatus.OK,"Cities Found",cityService.searchCities(keyword,pageable));
+       return new ResponseEntity<>(resp,HttpStatus.OK);
+
+    }
+
+    @GetMapping("/citybycountrycode")
+    public ResponseEntity<apiResponse> getCitiesByCountryCode(@RequestParam(defaultValue = "0") int page,@RequestParam(defaultValue = "20") int size,@RequestParam String countryCode){
+        Pageable pageable=PageRequest.of(page,size);
+        apiResponse resp=new apiResponse(HttpStatus.OK,"Cities Found",cityService.getCitiesByCountryCode(countryCode,pageable));
+        return new ResponseEntity<>(resp,HttpStatus.OK);
+    }
+
+    @GetMapping("/cityexist")
+    public ResponseEntity<apiResponse> cityExistByCityCode(@RequestParam String cityCode){
+        boolean exist=cityService.cityExist(cityCode);
+        if(!exist)throw new NotFound("No City Found");
+        apiResponse resp=new apiResponse(HttpStatus.OK,"City Found",true);
+        return new ResponseEntity<>(resp,HttpStatus.OK);
+    }
 }
